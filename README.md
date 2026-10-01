@@ -5,6 +5,13 @@
 金线手绘图标的首饰清单、¥ 金额数字滚动 + 大写金额、珍礼网格卡片，
 页面底部还会**自动生成当前网址的二维码**，截图即可分享。
 
+## 在线地址
+
+https://huangjunhao9293.github.io/engagement-invite/
+
+> 仓库：`huangjunhao9293/engagement-invite`（分支 `master`）。
+> 页面底部二维码会自动按当前网址生成，换域名 / 改名后无需改代码。
+
 ## 文件说明
 
 | 文件 | 说明 |
@@ -41,16 +48,15 @@ phone 手机 / tea 茶 / quilt 被子 / chest 红箱`。
 
 ## 发布到 GitHub Pages（3 步）
 
-1. 新建仓库（如 `dinghun`），把 `index.html` 和 `qrcode.min.js` 传上去：
+1. 新建仓库（如 `engagement-invite`），把 `index.html` 和 `qrcode.min.js` 传上去：
    ```bash
-   git init && git add index.html qrcode.min.js
+   git init -b master && git add index.html qrcode.min.js
    git commit -m "聘礼清单"
-   git branch -M main
    git remote add origin https://github.com/<你的用户名>/<仓库名>.git
-   git push -u origin main
+   git push -u origin master
    ```
 2. 仓库 → **Settings → Pages** → Source 选 `Deploy from a branch`，
-   Branch 选 `main` / `/ (root)` → Save。
+   Branch 选 `master` / `/ (root)` → Save。
 3. 等 1~2 分钟，访问
    `https://<你的用户名>.github.io/<仓库名>/`
    能看到大门即发布成功；此时页面底部会自动生成该网址的二维码。
