@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>聘礼清单 · 囍</title>
+<meta name="theme-color" content="#3d0407" />
+<meta name="description" content="长按门环，推开礼堂大门 —— 订婚聘礼清单" />
+<meta property="og:title" content="聘礼清单 · 囍" />
+<meta property="og:description" content="长按门环，推开属于我们的礼堂" />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%238c0d16'/><text x='32' y='47' font-size='42' text-anchor='middle' fill='%23ffe9a8' font-family='serif'>囍</text></svg>" />
+<style>
+/* ============ 基础 ============ */
+:root{
+  --red-deep:#3d0407;
+  --red:#8c0d16;
+  --gold:#e8c168;
+  --gold-lt:#ffefb8;
+  --kai:"Kaiti SC","KaiTi","STKaiti","楷体","Songti SC","SimSun",serif;
+  --hei:"PingFang SC","HarmonyOS Sans SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --serif:"Songti SC","STSong","Source Han Serif SC","Noto Serif SC","SimSun",serif;
+  --pad: clamp(18px, 5.2vw, 30px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;overflow-x:hidden}
+body{
+  font-family:var(--hei);
+  background:#2b0305;color:#ffeec4;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+body.locked{overflow:hidden;height:100vh;position:fixed;width:100%}
+
+/* ============ 金色飘落粒子 ============ */
+#petals{position:fixed;inset:0;pointer-events:none;z-index:30}
+
+/* ============ 礼堂（门后） ============ */
+#hall{
+  position:fixed;inset:0;z-index:1;
+  overflow-y:auto;overflow-x:hidden;overflow-x:clip;-webkit-overflow-scrolling:touch;
+  opacity:0;transform:scale(1.08);
+  transition:opacity 1.6s ease,transform 2.4s cubic-bezier(.22,.8,.3,1);
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(255,214,120,.30),transparent 60%),
+    radial-gradient(ellipse 90% 60% at 50% 110%,rgba(200,30,40,.35),transparent 60%),
+    radial-gradient(ellipse 120% 90% at 50% 40%,#7d0a13 0%,#5a060d 45%,#330306 100%);
+}
+#hall.visible{opacity:1;transform:scale(1)}
+#hall::before{
+  content:"";position:fixed;inset:0;pointer-events:none;
+  background-image:
+    repeating-linear-gradient(90deg,rgba(255,220,140,.045) 0 1px,transparent 1px 26px),
+    repeating-linear-gradient(0deg,rgba(255,220,140,.035) 0 1px,transparent 1px 26px);
+  mask-image:radial-gradient(ellipse 70% 70% at 50% 30%,#000 20%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 30%,#000 20%,transparent 75%);
+}
+/* 仙境光晕：门开后缓缓流动 */
+#hall::after{
+  content:"";position:fixed;left:50%;top:-30vh;width:180vw;height:130vh;
+  transform:translateX(-50%);pointer-events:none;
+  background:radial-gradient(ellipse 42% 42% at 50% 42%,rgba(255,215,130,.20),transparent 68%);
+  animation:drift 16s ease-in-out infinite alternate;
+}
+@keyframes drift{
+  0%{transform:translateX(-50%) scale(1)}
+  100%{transform:translateX(-52%) scale(1.12)}
+}
+
+/* ============ 礼单内容（开门后呈现） ============ */
+.wrap{position:relative;z-index:2;max-width:600px;margin:0 auto;
+  padding:0 var(--pad) calc(60px + env(safe-area-inset-bottom))}
+
+/* ---- 头部 ---- */
+.hero{padding:clamp(56px,13vh,110px) 0 clamp(26px,6vh,44px);text-align:center;position:relative;overflow:hidden}
+.hero-xi{position:absolute;left:50%;top:6%;transform:translateX(-50%);font-family:var(--serif);
+  font-size:min(74vw,330px);line-height:1;color:rgba(255,214,150,.05);pointer-events:none;user-select:none}
+.hero-kicker{font-family:var(--kai);font-size:clamp(12px,3.6vw,14px);letter-spacing:.62em;color:rgba(246,223,168,.86);
+  text-indent:.62em;margin-bottom:18px}
+.hero-seal{display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:12px;margin-bottom:16px;
+  border:1.5px solid rgba(246,223,168,.5);background:linear-gradient(150deg,rgba(180,20,50,.85),rgba(90,6,24,.85));
+  font-family:var(--serif);font-size:30px;font-weight:700;color:#ffeec2;
+  box-shadow:0 0 22px rgba(255,160,80,.35),0 0 0 5px rgba(246,223,168,.08) inset;
+  animation:breathe 4.2s ease-in-out infinite}
+@keyframes breathe{
+  0%,100%{box-shadow:0 0 22px rgba(255,160,80,.35),0 0 0 5px rgba(246,223,168,.08) inset}
+  50%{box-shadow:0 0 40px rgba(255,180,90,.6),0 0 0 5px rgba(246,223,168,.08) inset}
+}
+.hero-title{font-family:var(--serif);font-weight:700;font-size:clamp(30px,9.6vw,46px);letter-spacing:.1em;line-height:1.2;margin:0;
+  background:linear-gradient(150deg,#fffaf0,#f6dd9f 26%,#d3a44f 52%,#fff3ce 68%,#c8963a 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 16px rgba(255,180,90,.4))}
+.hero-sub{font-family:var(--kai);font-size:clamp(15px,4.6vw,20px);letter-spacing:.34em;color:#f3ddb4;margin-top:10px;text-indent:.34em}
+.hero-names{font-family:var(--serif);font-size:clamp(15px,4.6vw,19px);letter-spacing:.14em;color:#f7e6c4;margin-top:26px}
+.hero-names em{font-style:normal;color:#e0b45f;margin:0 .5em;font-size:.9em}
+.hero-date{font-size:clamp(12px,3.5vw,13.5px);letter-spacing:.3em;color:rgba(246,223,168,.8);margin-top:8px;text-indent:.3em}
+.hero-poem{font-family:var(--kai);font-size:clamp(13px,3.9vw,15.5px);letter-spacing:.12em;color:rgba(248,230,200,.78);
+  margin-top:22px;line-height:2}
+.hero-poem::before,.hero-poem::after{content:"「";color:rgba(224,180,95,.7)}
+.hero-poem::after{content:"」"}
+
+.orn{display:flex;align-items:center;justify-content:center;gap:12px;margin:clamp(26px,7vw,40px) 0;opacity:.85}
+.orn i{display:block;height:1px;width:min(22vw,86px);background:linear-gradient(90deg,transparent,rgba(246,223,168,.72),transparent)}
+.orn span{width:7px;height:7px;transform:rotate(45deg);background:linear-gradient(135deg,#fff3ce,#c8963a);box-shadow:0 0 10px rgba(255,190,110,.7)}
+
+/* ---- 板块卡片 ---- */
+.card{position:relative;margin-bottom:clamp(16px,4vw,22px);border-radius:18px;padding:clamp(18px,5vw,26px);
+  background:linear-gradient(158deg,rgba(138,20,50,.64),rgba(48,5,21,.88) 62%,rgba(33,3,15,.92));
+  border:1px solid rgba(246,223,168,.2);
+  box-shadow:0 16px 44px rgba(0,0,0,.34),0 0 0 1px rgba(255,220,160,.05) inset;
+  overflow:hidden}
+.card::before{content:"";position:absolute;top:0;left:12%;right:12%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,232,180,.65),transparent)}
+.card-head{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.card-no{font-family:var(--serif);font-size:13px;letter-spacing:.1em;color:#e8c37a;flex:none;
+  border:1px solid rgba(232,195,122,.45);border-radius:4px;padding:1px 6px;line-height:1.5;
+  background:rgba(232,195,122,.08)}
+.card-title{font-family:var(--serif);font-size:clamp(19px,5.6vw,24px);letter-spacing:.14em;font-weight:700;color:#fbeed2;margin:0}
+.card-sub{font-size:clamp(11.5px,3.4vw,13px);letter-spacing:.2em;color:rgba(246,223,168,.76);margin:0 0 4px;text-indent:.2em}
+
+/* 首饰清单（金线图标） */
+.jlist{list-style:none;margin:16px 0 2px;padding:0}
+.jrow{display:flex;align-items:center;gap:14px;padding:11px 0;border-top:1px solid rgba(246,223,168,.11)}
+.jrow:first-child{border-top:0}
+.jico{flex:none;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 32% 26%,rgba(255,232,180,.20),rgba(160,110,30,.10) 62%,rgba(0,0,0,0) 78%);
+  border:1px solid rgba(246,223,168,.26);box-shadow:0 0 16px rgba(255,180,90,.16) inset}
+.jico svg{width:29px;height:29px}
+.jtxt{min-width:0}
+.jname{font-family:var(--serif);font-size:clamp(15.5px,4.5vw,17.5px);letter-spacing:.1em;color:#faeacb;line-height:1.45}
+.jdesc{font-size:clamp(11.5px,3.3vw,12.5px);letter-spacing:.06em;color:rgba(246,223,168,.76);line-height:1.6}
+
+/* 礼金 */
+.money{text-align:center;padding:clamp(22px,6vw,32px) clamp(14px,4vw,22px)}
+.money-label{font-family:var(--kai);font-size:clamp(13px,3.8vw,15px);letter-spacing:.36em;color:rgba(246,223,168,.86);text-indent:.36em}
+.money-amt{font-family:var(--serif);font-size:clamp(36px,12vw,54px);font-weight:700;letter-spacing:.02em;line-height:1.25;margin-top:6px;
+  background:linear-gradient(150deg,#fffaf0,#f6dd9f 24%,#e0b45f 48%,#fff3ce 66%,#c8963a 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 18px rgba(255,180,90,.42))}
+.money-amt small{font-size:.42em;font-weight:400;letter-spacing:.06em;margin-right:.12em;vertical-align:.28em}
+.money-cap{font-family:var(--kai);font-size:clamp(12.5px,3.7vw,14.5px);letter-spacing:.24em;color:rgba(248,230,200,.8);margin-top:2px;text-indent:.24em}
+.money-desc{font-size:clamp(11.5px,3.3vw,12.5px);letter-spacing:.14em;color:rgba(246,223,168,.72);margin-top:10px}
+.money-line{width:56%;height:1px;margin:14px auto 0;background:linear-gradient(90deg,transparent,rgba(246,223,168,.45),transparent)}
+
+/* 珍礼网格 */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,3vw,14px);margin-bottom:clamp(16px,4vw,22px)}
+.gcard{position:relative;border-radius:16px;padding:clamp(15px,4.4vw,20px) 12px;text-align:center;overflow:hidden;
+  background:linear-gradient(158deg,rgba(128,18,46,.66),rgba(43,5,20,.9));
+  border:1px solid rgba(246,223,168,.18);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.gcard::before{content:"";position:absolute;top:0;left:22%;right:22%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,232,180,.5),transparent)}
+.gcard .card-no{position:absolute;top:10px;left:10px;font-size:11px;padding:0 5px}
+.gcard .gico{margin:8px auto 10px;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 32% 26%,rgba(255,232,180,.22),rgba(160,110,30,.10) 62%,rgba(0,0,0,0) 78%);
+  border:1px solid rgba(246,223,168,.26);box-shadow:0 0 18px rgba(255,180,90,.18) inset}
+.gcard .gico svg{width:32px;height:32px}
+.gname{font-family:var(--serif);font-size:clamp(14px,4.1vw,16px);letter-spacing:.06em;color:#faeacb;line-height:1.4}
+.gdesc{font-size:clamp(11px,3.1vw,12px);letter-spacing:.04em;color:rgba(246,223,168,.76);margin-top:6px;line-height:1.6}
+
+/* ---- 页脚 ---- */
+.foot{text-align:center;padding:clamp(24px,7vw,44px) 0 0}
+.foot-xi{font-family:var(--serif);font-size:34px;font-weight:700;
+  background:linear-gradient(150deg,#fffaf0,#e8c37a 40%,#c8963a 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 14px rgba(255,180,90,.55))}
+.foot-poem{font-family:var(--kai);font-size:clamp(13px,3.9vw,15px);letter-spacing:.28em;color:rgba(248,230,200,.92);margin-top:12px;text-indent:.28em}
+.foot-names{font-family:var(--serif);font-size:clamp(14px,4.2vw,16.5px);letter-spacing:.14em;color:#f7e6c4;margin-top:18px}
+.foot-date{font-size:clamp(11.5px,3.3vw,12.5px);letter-spacing:.3em;color:rgba(246,223,168,.72);margin-top:6px;text-indent:.3em}
+
+.share{margin-top:clamp(28px,8vw,44px);padding:clamp(20px,6vw,28px) 18px;border-radius:18px;
+  background:linear-gradient(158deg,rgba(138,20,50,.58),rgba(42,4,18,.86));
+  border:1px solid rgba(246,223,168,.2);box-shadow:0 16px 44px rgba(0,0,0,.34)}
+.share-t{font-family:var(--kai);font-size:clamp(12.5px,3.7vw,14px);letter-spacing:.24em;color:rgba(246,223,168,.88);text-indent:.24em}
+.qr-box{margin:16px auto 0;width:min(58vw,196px);padding:10px;border-radius:14px;
+  background:linear-gradient(160deg,#fffaf0,#f3e3c2);
+  box-shadow:0 0 0 1px rgba(246,223,168,.5),0 10px 30px rgba(0,0,0,.4),0 0 26px rgba(255,180,90,.22)}
+.qr-box img{width:100%;height:auto;border-radius:6px;image-rendering:pixelated}
+.share-tip{font-size:clamp(11px,3.2vw,12px);letter-spacing:.14em;color:rgba(246,223,168,.74);margin-top:12px}
+.share-tip b{font-weight:400;color:#e8c37a}
+.qr-empty{padding:26px 8px;color:#5e0617;font-size:13px;line-height:1.9}
+
+.replay{display:inline-flex;align-items:center;gap:8px;margin-top:clamp(24px,7vw,36px);padding:10px 22px;border-radius:999px;
+  border:1px solid rgba(246,223,168,.35);background:rgba(80,10,32,.45);color:#f0d9a8;cursor:pointer;
+  font-family:var(--hei);font-size:13px;letter-spacing:.16em;transition:.25s}
+.replay:active{transform:scale(.96);background:rgba(120,18,48,.6)}
+
+/* 滚动出现 */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ============ 大门 ============ */
+#gate{
+  position:fixed;inset:0;z-index:10;
+  perspective:1700px;perspective-origin:50% 46%;
+  transition:opacity 1.2s ease,transform 1.5s cubic-bezier(.4,0,.4,1);
+  overflow:hidden;touch-action:none;
+  -webkit-touch-callout:none;-webkit-user-select:none;user-select:none;
+}
+#gate.done{opacity:0;transform:scale(1.22);pointer-events:none}
+#gate .glowback{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 46% 62% at 50% 50%,rgba(255,238,190,.95),rgba(255,196,96,.62) 32%,rgba(255,150,60,.22) 55%,transparent 74%),
+    radial-gradient(ellipse 120% 100% at 50% 50%,#5c060d,#2b0305 78%);
+  opacity:.35;transition:opacity 1.4s ease;
+}
+#gate.holding .glowback,#gate.open .glowback{opacity:1}
+.rays{
+  position:absolute;left:50%;top:50%;width:200vmax;height:200vmax;
+  transform:translate(-50%,-50%);opacity:0;
+  background:conic-gradient(from 0deg,
+    rgba(255,232,170,.42) 0deg 3deg,transparent 3deg 24deg,
+    rgba(255,232,170,.32) 24deg 26deg,transparent 26deg 48deg);
+  animation:spin 46s linear infinite;transition:opacity 1.6s ease;
+}
+#gate.open .rays{opacity:.85}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+.doors{position:absolute;inset:0;transform-style:preserve-3d}
+.leaf{
+  position:absolute;top:0;height:100%;width:50.35%;
+  border:1px solid rgba(0,0,0,.5);
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,0) 16%,rgba(0,0,0,0) 84%,rgba(0,0,0,.55)),
+    linear-gradient(180deg,#a3101b 0%,#7d0a12 42%,#63070e 78%,#4c050a 100%);
+  box-shadow:inset 0 0 90px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,220,150,.12);
+  transform-style:preserve-3d;
+  transition:transform 3.4s cubic-bezier(.66,.02,.28,1);
+  will-change:transform;
+}
+.leaf-l{left:0;transform-origin:left center}
+.leaf-r{right:0;transform-origin:right center;background-position:right}
+#gate.open .leaf-l{transform:rotateY(-107deg)}
+#gate.open .leaf-r{transform:rotateY(107deg)}
+#gate.holding .leaf{animation:tremble .32s ease-in-out infinite}
+@keyframes tremble{0%,100%{filter:brightness(1)}50%{filter:brightness(1.22)}}
+
+.leaf .studs{
+  position:absolute;inset:7% 8%;
+  background-image:radial-gradient(circle at 50% 50%,#ffefc0 0 2px,#e0ab4a 2.4px 4.2px,#8f6119 4.6px 5.3px,transparent 5.6px);
+  background-size:48px 48px;background-position:24px 24px;opacity:.34;
+}
+.leaf .frameline{position:absolute;inset:5% 5.5%;border:1.5px solid rgba(255,224,150,.28);border-radius:4px;pointer-events:none}
+.leaf .frameline::after{content:"";position:absolute;inset:7px;border:1px solid rgba(255,224,150,.14);border-radius:3px}
+.deco{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:76px;height:76px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--kai);font-size:40px;line-height:1;color:#ffe9a8;
+  background:radial-gradient(circle at 34% 26%,rgba(255,220,150,.34),rgba(80,8,14,.85) 70%);
+  border:1.5px solid rgba(255,224,150,.6);
+  box-shadow:0 0 26px rgba(255,190,90,.28),inset 0 0 20px rgba(0,0,0,.5);
+}
+.leaf-l .deco{right:5.5%}
+.leaf-r .deco{left:5.5%}
+.seam{
+  position:absolute;left:50%;top:0;height:100%;width:2px;transform:translateX(-1px);
+  background:linear-gradient(180deg,transparent,rgba(255,235,180,.85) 18%,rgba(255,255,235,1) 50%,rgba(255,235,180,.85) 82%,transparent);
+  box-shadow:0 0 26px rgba(255,215,130,.85);opacity:.55;
+  transition:opacity .5s ease,box-shadow .5s ease;
+}
+#gate.holding .seam,#gate.open .seam{opacity:1;box-shadow:0 0 60px 10px rgba(255,220,140,.95)}
+
+/* 匾额 */
+.plaque{
+  position:absolute;left:50%;top:calc(5% + env(safe-area-inset-top));transform:translateX(-50%);
+  width:min(74vw,430px);padding:12px 0 11px;border-radius:8px;
+  text-align:center;font-family:var(--kai);font-size:clamp(17px,4.6vw,23px);
+  letter-spacing:.2em;text-indent:.2em;
+  background:linear-gradient(180deg,#5d0a11,#3a0509);
+  border:2px solid rgba(232,193,104,.85);
+  box-shadow:0 6px 22px rgba(0,0,0,.5),inset 0 0 26px rgba(255,190,90,.18);
+  color:#ffe9a8;text-shadow:0 0 14px rgba(255,200,110,.6);
+}
+.plaque::before,.plaque::after{
+  content:"";position:absolute;top:50%;width:11px;height:11px;transform:translateY(-50%) rotate(45deg);
+  background:linear-gradient(135deg,#ffe9a8,#c8952f);
+}
+.plaque::before{left:-6px}
+.plaque::after{right:-6px}
+
+/* 灯笼 */
+.lantern{
+  position:absolute;top:calc(4% + env(safe-area-inset-top));
+  width:58px;transform-origin:top center;
+  animation:swing 4.6s ease-in-out infinite;
+}
+.lantern.l{left:6vw}
+.lantern.r{right:6vw;animation-delay:-2.3s}
+@keyframes swing{0%,100%{transform:rotate(-4.5deg)}50%{transform:rotate(4.5deg)}}
+.lantern .rope{width:1.5px;height:34px;margin:0 auto;background:linear-gradient(180deg,rgba(255,224,150,.25),rgba(255,224,150,.8))}
+.lantern .cap{width:26px;height:9px;margin:0 auto;border-radius:3px;background:linear-gradient(180deg,#ffe9a8,#b8860b)}
+.lantern .body{
+  width:58px;height:66px;border-radius:50% / 40%;
+  background:
+    radial-gradient(circle at 32% 30%,rgba(255,255,255,.5),transparent 42%),
+    linear-gradient(90deg,#c0172a,#e33b3b 45%,#8c0d16);
+  border:1px solid rgba(255,224,150,.7);
+  box-shadow:0 0 28px rgba(255,110,90,.55),inset 0 0 20px rgba(120,0,10,.6);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--kai);font-size:26px;color:#ffe9a8;
+  text-shadow:0 0 10px rgba(255,220,150,.8);
+}
+.lantern .cap.b{border-radius:3px}
+.lantern .tassel{width:3px;height:26px;margin:2px auto 0;border-radius:2px;background:linear-gradient(180deg,#e0b352,#8a6018)}
+@media(max-width:420px){.lantern{width:46px}.lantern .body{width:46px;height:54px;font-size:21px}.lantern.l{left:3vw}.lantern.r{right:3vw}}
+
+/* 中央开门按钮 */
+.opener{
+  position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
+  width:158px;height:158px;display:flex;align-items:center;justify-content:center;
+  transition:opacity .7s ease,transform .7s ease;cursor:pointer;
+}
+#gate.open .opener{opacity:0;transform:translate(-50%,-50%) scale(1.5)}
+.opener svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.opener .track{fill:rgba(60,5,10,.5);stroke:rgba(255,224,150,.28);stroke-width:2}
+.opener .prog{
+  fill:none;stroke:url(#gr);stroke-width:4;stroke-linecap:round;
+  stroke-dasharray:452;stroke-dashoffset:452;
+}
+#gate.holding .opener .prog{
+  stroke-dashoffset:0;
+  transition:stroke-dashoffset var(--hold,900ms) linear;
+}
+.opener .core{
+  position:relative;width:110px;height:110px;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  font-family:var(--kai);color:#ffe9a8;
+  background:radial-gradient(circle at 36% 28%,rgba(224,42,52,.95),rgba(90,8,15,.95) 68%);
+  border:1.5px solid rgba(255,224,150,.65);
+  box-shadow:0 0 34px rgba(255,180,80,.4),inset 0 0 24px rgba(0,0,0,.5);
+  animation:pulse 2.6s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 28px rgba(255,180,80,.32),inset 0 0 24px rgba(0,0,0,.5)}
+  50%{box-shadow:0 0 52px rgba(255,200,110,.65),inset 0 0 24px rgba(0,0,0,.5)}
+}
+.opener .core .xi{font-size:44px;line-height:1}
+.opener .core .lb{font-size:10px;letter-spacing:.22em;text-indent:.22em;color:rgba(255,232,180,.75)}
+#gate.holding .opener .core .lb{font-size:0}
+#gate.holding .opener .core .lb::after{content:"蓄力中…";font-size:11px;letter-spacing:.18em}
+#gate.holding .opener .core .xi{animation:xiGlow .5s ease-in-out infinite}
+@keyframes xiGlow{0%,100%{text-shadow:0 0 10px rgba(255,220,150,.6)}50%{text-shadow:0 0 26px rgba(255,240,190,1)}}
+
+.hint{
+  position:absolute;left:50%;bottom:calc(11% + env(safe-area-inset-bottom));transform:translateX(-50%);
+  width:max-content;max-width:88vw;text-align:center;line-height:1.9;
+  font-size:13px;letter-spacing:.22em;text-indent:.22em;color:#ffe6b4;
+  text-shadow:0 0 16px rgba(255,190,90,.7);
+  animation:fadeup 2.6s ease-in-out infinite;
+}
+.hint .sub{font-size:11px;letter-spacing:.14em;color:rgba(255,230,180,.68)}
+@keyframes fadeup{
+  0%,100%{opacity:.55;transform:translate(-50%,0)}
+  50%{opacity:1;transform:translate(-50%,-5px)}
+}
+.skip{
+  display:inline-block;margin-top:16px;padding:9px 20px;border-radius:99px;cursor:pointer;
+  font-family:var(--hei);font-size:12px;letter-spacing:.12em;
+  color:rgba(255,232,180,.92);border:1px solid rgba(255,224,150,.45);
+  background:rgba(70,6,10,.6);
+  opacity:0;pointer-events:none;transition:opacity .8s ease;
+}
+.skip.show{opacity:1;pointer-events:auto}
+#gate.open .hint{animation:none;opacity:0;transition:opacity .4s}
+.floor{
+  position:absolute;left:0;right:0;bottom:0;height:22%;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(255,190,110,.12));
+}
+.flash{
+  position:absolute;inset:0;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at 50% 50%,#fffdf2 0%,rgba(255,236,180,.85) 26%,rgba(255,200,110,.25) 50%,transparent 72%);
+}
+.flash.on{animation:burst 1.25s ease-out forwards}
+@keyframes burst{0%{opacity:0;transform:scale(.4)}22%{opacity:1}100%{opacity:0;transform:scale(1.6)}}
+
+@media(prefers-reduced-motion:reduce){
+  .leaf{transition-duration:1s}
+  #hall::after{animation:none}
+  *{animation-duration:.001s !important;animation-iteration-count:1 !important}
+}
+</style>
+</head>
+<body class="locked">
+
+<!-- 金色飘落粒子 -->
+<canvas id="petals"></canvas>
+
+<!-- ===== 门后：礼堂 & 礼单 ===== -->
+<main id="hall">
+  <div class="wrap">
+    <header class="hero">
+      <div class="hero-xi" aria-hidden="true">囍</div>
+      <div class="hero-kicker">订婚之喜</div>
+      <div class="hero-seal">囍</div>
+      <h1 class="hero-title">聘礼八大件</h1>
+      <div class="hero-sub">礼　单</div>
+      <div class="hero-names" id="heroNames"></div>
+      <div class="hero-date" id="heroDate"></div>
+      <div class="hero-poem">幸福顺遂，爱不止息</div>
+    </header>
+
+    <div class="orn"><i></i><span></span><i></i></div>
+
+    <div id="listRoot"></div>
+
+    <footer class="foot">
+      <div class="orn" style="margin-top:0"><i></i><span></span><i></i></div>
+      <div class="foot-xi">囍</div>
+      <p class="foot-poem">此礼为凭　山河为证</p>
+      <p class="foot-names" id="footNames"></p>
+      <p class="foot-date" id="footDate"></p>
+
+      <div class="share">
+        <div class="share-t">扫码开启 · 分享这份喜悦</div>
+        <div class="qr-box" id="qrBox"></div>
+        <p class="share-tip" id="shareTip">长按二维码保存 · 或直接转发本页给亲友</p>
+      </div>
+
+      <button class="replay" type="button" id="replay">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4.5V10h5.5"/>
+        </svg>
+        重新开启大门
+      </button>
+    </footer>
+  </div>
+</main>
+
+<!-- ===== 大门（样式不变） ===== -->
+<div id="gate" oncontextmenu="return false">
+  <div class="glowback"></div>
+  <div class="rays"></div>
+
+  <div class="doors">
+    <div class="leaf leaf-l">
+      <div class="studs"></div>
+      <div class="frameline"></div>
+      <div class="deco">囍</div>
+    </div>
+    <div class="leaf leaf-r">
+      <div class="studs"></div>
+      <div class="frameline"></div>
+      <div class="deco">囍</div>
+    </div>
+  </div>
+
+  <div class="seam"></div>
+  <div class="floor"></div>
+
+  <div class="plaque" id="plaque">我们订婚啦~</div>
+
+  <div class="lantern l"><div class="rope"></div><div class="cap"></div><div class="body">囍</div><div class="cap b"></div><div class="tassel"></div></div>
+  <div class="lantern r"><div class="rope"></div><div class="cap"></div><div class="body">囍</div><div class="cap b"></div><div class="tassel"></div></div>
+
+  <div class="opener" id="opener">
+    <svg viewBox="0 0 160 160" aria-hidden="true">
+      <defs>
+        <linearGradient id="gr" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#fff3c8"/>
+          <stop offset="45%" stop-color="#e8c168"/>
+          <stop offset="100%" stop-color="#ffd98a"/>
+        </linearGradient>
+      </defs>
+      <circle class="track" cx="80" cy="80" r="72"/>
+      <circle class="prog" cx="80" cy="80" r="72"/>
+    </svg>
+    <div class="core">
+      <span class="xi">囍</span>
+      <span class="lb">长按开启</span>
+    </div>
+  </div>
+
+  <div class="hint" id="hint">
+    长按圆环 · 礼堂大门开启
+    <div class="sub">Hold to open the gate</div>
+    <button class="skip" type="button" id="skip">轻触此处直接推开 →</button>
+  </div>
+
+  <div class="flash" id="flash"></div>
+</div>
+
+<!-- ══════ 金线图标 ══════ -->
+<svg id="sprite" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="gGold" x1=".1" y1="0" x2=".9" y2="1">
+      <stop offset="0" stop-color="#fff7e0"/><stop offset=".35" stop-color="#f2d493"/>
+      <stop offset=".66" stop-color="#d3a44f"/><stop offset="1" stop-color="#b8822c"/>
+    </linearGradient>
+    <linearGradient id="gSilver" x1=".1" y1="0" x2=".9" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#e3ebf2"/>
+      <stop offset="1" stop-color="#9dafc0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 手镯 -->
+  <symbol id="ic-bangle" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="24" cy="24" r="13.5"/>
+    <circle cx="24" cy="24" r="9.8" opacity=".5"/>
+    <path d="M36.5 8 C36.8 10.2 37.7 11.1 39.9 11.4 C37.7 11.7 36.8 12.6 36.5 14.8 C36.2 12.6 35.3 11.7 33.1 11.4 C35.3 11.1 36.2 10.2 36.5 8 Z" fill="url(#gGold)" stroke="none"/>
+  </symbol>
+
+  <!-- 项链 -->
+  <symbol id="ic-necklace" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10.5 12.5 C12 24.5 17 30.5 24 30.5 C31 30.5 36 24.5 37.5 12.5"/>
+    <path d="M24 30.5 V33.2"/>
+    <circle cx="24" cy="37.2" r="4"/>
+  </symbol>
+
+  <!-- 耳钉 -->
+  <symbol id="ic-stud" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="17" cy="26" r="3.9"/>
+    <circle cx="31" cy="26" r="3.9"/>
+    <path d="M33.5 12 C33.8 14.6 34.9 15.7 37.5 16 C34.9 16.3 33.8 17.4 33.5 20 C33.2 17.4 32.1 16.3 29.5 16 C32.1 15.7 33.2 14.6 33.5 12 Z" fill="url(#gGold)" stroke="none"/>
+    <path d="M14 12.5 C14.2 14.1 14.9 14.8 16.5 15 C14.9 15.2 14.2 15.9 14 17.5 C13.8 15.9 13.1 15.2 11.5 15 C13.1 14.8 13.8 14.1 14 12.5 Z" fill="url(#gGold)" stroke="none" opacity=".85"/>
+  </symbol>
+
+  <!-- 手链 -->
+  <symbol id="ic-chain" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12.6" cy="21.9" r="2.5"/><circle cx="16.3" cy="16.8" r="2.5"/>
+    <circle cx="24" cy="14" r="2.5"/><circle cx="31.7" cy="16.8" r="2.5"/>
+    <circle cx="35.4" cy="21.9" r="2.5"/>
+    <path d="M24 34.6 C21.4 32.5 18.9 30.5 18.9 28.2 C18.9 26.3 20.4 25 22.1 25 C23.1 25 23.8 25.5 24 26.2 C24.2 25.5 24.9 25 25.9 25 C27.6 25 29.1 26.3 29.1 28.2 C29.1 30.5 26.6 32.5 24 34.6 Z"/>
+  </symbol>
+
+  <!-- 戒指 -->
+  <symbol id="ic-ring" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="24" cy="30" r="9.6"/>
+    <circle cx="24" cy="16" r="3.7"/>
+    <circle cx="24" cy="16" r="1.1" fill="url(#gGold)" stroke="none"/>
+  </symbol>
+
+  <!-- 钻戒 -->
+  <symbol id="ic-diaring" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="24" cy="32.4" r="8.6"/>
+    <path d="M17.6 15.4 L24 9.2 L30.4 15.4 L24 24.6 Z"/>
+    <path d="M17.6 15.4 H30.4"/>
+    <path d="M24 9.2 L21.2 15.4 L24 24.6 M24 9.2 L26.8 15.4 L24 24.6" opacity=".75"/>
+    <path d="M36.5 8 C36.8 10.2 37.7 11.1 39.9 11.4 C37.7 11.7 36.8 12.6 36.5 14.8 C36.2 12.6 35.3 11.7 33.1 11.4 C35.3 11.1 36.2 10.2 36.5 8 Z" fill="url(#gGold)" stroke="none"/>
+    <path d="M38.6 20 C38.8 21.5 39.4 22.1 40.9 22.3 C39.4 22.5 38.8 23.1 38.6 24.6 C38.4 23.1 37.8 22.5 36.3 22.3 C37.8 22.1 38.4 21.5 38.6 20 Z" fill="url(#gGold)" stroke="none" opacity=".85"/>
+  </symbol>
+
+  <!-- 钻戒 · 围镶款 -->
+  <symbol id="ic-diaring2" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="24" cy="33.4" r="8.2"/>
+    <circle cx="24" cy="16" r="4.6"/>
+    <circle cx="24" cy="16" r="1.5" fill="url(#gGold)" stroke="none"/>
+    <g stroke-width="1.35">
+      <circle cx="30.6" cy="16" r="1.3"/>
+      <circle cx="28.67" cy="20.67" r="1.3"/>
+      <circle cx="24" cy="22.6" r="1.3"/>
+      <circle cx="19.33" cy="20.67" r="1.3"/>
+      <circle cx="17.4" cy="16" r="1.3"/>
+      <circle cx="19.33" cy="11.33" r="1.3"/>
+      <circle cx="24" cy="9.4" r="1.3"/>
+      <circle cx="28.67" cy="11.33" r="1.3"/>
+    </g>
+  </symbol>
+
+  <!-- 对戒 -->
+  <symbol id="ic-pairring" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="18.4" cy="28.4" r="8.8"/>
+    <circle cx="29.6" cy="28.4" r="8.8"/>
+    <path d="M31 10.5 C31.3 12.9 32.3 13.9 34.7 14.2 C32.3 14.5 31.3 15.5 31 17.9 C30.7 15.5 29.7 14.5 27.3 14.2 C29.7 13.9 30.7 12.9 31 10.5 Z" fill="url(#gGold)" stroke="none"/>
+  </symbol>
+
+  <!-- 钻石项链 -->
+  <symbol id="ic-dianek" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10.5 11.5 C12 22.4 17 27.8 24 27.8 C31 27.8 36 22.4 37.5 11.5"/>
+    <path d="M24 27.8 V30.2"/>
+    <path d="M20 35.4 L24 30.4 L28 35.4 L24 41.8 Z"/>
+    <path d="M20 35.4 H28"/>
+    <path d="M24 30.4 L22.1 35.4 L24 41.8 M24 30.4 L25.9 35.4 L24 41.8" opacity=".7"/>
+  </symbol>
+
+  <!-- 白金耳钉 -->
+  <symbol id="ic-ptstud" viewBox="0 0 48 48" fill="none" stroke="url(#gSilver)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="17" cy="26" r="3.9"/>
+    <circle cx="31" cy="26" r="3.9"/>
+    <path d="M17 19.2 V22.1 M17 29.9 V32.8 M10.2 26 H13.1 M20.9 26 H23.8" opacity=".85"/>
+    <path d="M34 11.5 C34.3 14.1 35.4 15.2 38 15.5 C35.4 15.8 34.3 16.9 34 19.5 C33.7 16.9 32.6 15.8 30 15.5 C32.6 15.2 33.7 14.1 34 11.5 Z" fill="url(#gSilver)" stroke="none"/>
+  </symbol>
+
+  <!-- iPhone -->
+  <symbol id="ic-phone" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="14" y="7.5" width="20" height="33" rx="5.4"/>
+    <path d="M21 11.4 H27"/>
+    <path d="M20.4 36.8 H27.6"/>
+    <path d="M24 19.6 l1.5 2.6 2.9 .4 -2.1 2.1 .5 2.9 -2.8-1.5 -2.8 1.5 .5-2.9 -2.1-2.1 2.9-.4 Z" opacity=".8"/>
+  </symbol>
+
+  <!-- 金骏眉 -->
+  <symbol id="ic-tea" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M13.6 23.6 H34.4 V28 A10.4 10.4 0 0 1 24 38.4 A10.4 10.4 0 0 1 13.6 28 Z"/>
+    <path d="M34.4 25.6 H36.3 A3.6 3.6 0 0 1 36.3 32.8 H33.9"/>
+    <path d="M10.5 41.6 H37.5"/>
+    <path d="M20 19 C20 16.9 22.2 16.7 22.2 14.6 C22.2 12.5 20 12.3 20 10.2"/>
+    <path d="M27 19 C27 16.9 29.2 16.7 29.2 14.6 C29.2 12.5 27 12.3 27 10.2"/>
+  </symbol>
+
+  <!-- 蚕丝被 -->
+  <symbol id="ic-quilt" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 32 C8.7 32 6 29.3 6 26 C6 23 8.3 20.5 11.3 20 C11.7 15.6 15.4 12 20 12 C23.3 12 26.2 13.8 27.7 16.5 C28.6 15.9 29.7 15.5 30.9 15.5 C34.2 15.5 36.9 18.2 36.9 21.5 C36.9 22 36.8 22.5 36.7 23 C38.9 23.7 40.5 25.7 40.5 28.1 C40.5 30.6 38.8 32 36.5 32 Z"/>
+    <path d="M14 38.2 C17 36.4 21 36.4 24 38.2 C27 40 31 40 34 38.2"/>
+    <path d="M16 43.6 C18.6 42.2 21.4 42.2 24 43.6 C26.6 45 29.4 45 32 43.6" opacity=".8"/>
+  </symbol>
+
+  <!-- 大红箱 -->
+  <symbol id="ic-chest" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9.5 20.5 V17.4 A5.4 5.4 0 0 1 14.9 12 H33.1 A5.4 5.4 0 0 1 38.5 17.4 V20.5"/>
+    <rect x="9.5" y="20.5" width="29" height="18" rx="2.8"/>
+    <path d="M9.5 27.4 H38.5"/>
+    <rect x="20.8" y="24.2" width="6.4" height="7.4" rx="1.4" fill="url(#gGold)" stroke="none"/>
+    <circle cx="24" cy="28" r="1.1" fill="#5e0617" stroke="none"/>
+  </symbol>
+</svg>
+
+<script src="./qrcode.min.js"></script>
+<script>
+/* =====================================================================
+   ★★★ 可修改区域（改这里就够了）★★★
+   ===================================================================== */
+const CONFIG = {
+  groom:  "黄俊豪",                 // 男方姓名
+  bride:  "龚胤僮",                 // 女方姓名
+  plaque: "我们订婚啦~",            // 门上匾额文字
+  date:   "二〇二七 · 囍",          // 日期（头部与页脚共用）
+  holdMs: 900,                      // 长按多少毫秒 → 开门
+  sound:  true                      // 开门时是否播放一声轻柔的钟声
+};
+
+/* 礼单内容：
+   type:"jewel" 首饰清单（icon=图标，name=名称，desc=祝福小字）
+   type:"money" 礼金（amount=数字，自动滚动；cap=大写金额）
+   type:"simple" 珍礼网格卡（icon=图标，title=名称，sub=小字） */
+const CONFIG_SECTIONS = [
+  {
+    no:"壹", type:"jewel", title:"黄金首饰", sub:"五金之礼 · 情比金坚",
+    items:[
+      { icon:"bangle",   name:"足金手镯", desc:"圆圆满满，锁你一生安顺" },
+      { icon:"necklace", name:"足金项链", desc:"贴于心口，系此情深" },
+      { icon:"stud",     name:"足金耳钉", desc:"耳畔流光，岁岁相伴" },
+      { icon:"chain",    name:"足金手链", desc:"腕间缠绕，环环相扣" },
+      { icon:"ring",     name:"足金戒指", desc:"指尖盟约，互许终身" }
+    ]
+  },
+  {
+    no:"贰", type:"jewel", title:"钻石白金", sub:"璀璨永恒 · 铂金之诺",
+    items:[
+      { icon:"diaring",  name:"求婚钻戒", desc:"单膝一诺，此生为你" },
+      { icon:"diaring2", name:"结婚钻戒", desc:"执手一诺，白首不离" },
+      { icon:"pairring", name:"情侣对戒", desc:"同款同心，刻你我之名" },
+      { icon:"dianek",   name:"钻石项链", desc:"颈间星辰，璀璨如你" },
+      { icon:"ptstud",   name:"白金耳钉", desc:"铂金清辉，映你笑颜" }
+    ]
+  },
+  { no:"叁", type:"money", title:"日子钱", sub:"择吉纳采 · 定此良辰", amount:58000,  cap:"伍万捌仟元整" },
+  { no:"肆", type:"money", title:"彩礼",   sub:"",                      amount:288000, cap:"贰拾捌万捌仟元整" },
+  { no:"伍", type:"simple", icon:"phone", title:"iPhone 18 Pro Max", sub:"一机相牵 · 天涯如面" },
+  { no:"陆", type:"simple", icon:"tea",   title:"特级金骏眉",         sub:"一盏醇香 · 敬奉双亲" },
+  { no:"柒", type:"simple", icon:"quilt", title:"铂金蚕丝被",         sub:"一枕温柔 · 共衾同眠" },
+  { no:"捌", type:"simple", icon:"chest", title:"大红箱",             sub:"满箱喜气 · 抬进家门" }
+];
+/* ===================== 可修改区域结束 ===================== */
+
+const $ = id => document.getElementById(id);
+const ICONS = {bangle:"ic-bangle",necklace:"ic-necklace",stud:"ic-stud",chain:"ic-chain",ring:"ic-ring",
+  diaring:"ic-diaring",diaring2:"ic-diaring2",pairring:"ic-pairring",dianek:"ic-dianek",ptstud:"ic-ptstud",
+  phone:"ic-phone",tea:"ic-tea",quilt:"ic-quilt",chest:"ic-chest"};
+const icon = k => `<svg viewBox="0 0 48 48" aria-hidden="true"><use href="#${ICONS[k]||"ic-ring"}"></use></svg>`;
+
+
+/* ---------- 渲染礼单 ---------- */
+(function render() {
+  const root = $("listRoot");
+  let html = "", buf = [];
+  const flush = () => { if (buf.length) { html += `<div class="grid">${buf.join("")}</div>`; buf = []; } };
+
+  CONFIG_SECTIONS.forEach(s => {
+    if (s.type === "simple") {
+      buf.push(`<div class="gcard reveal"><span class="card-no">${s.no}</span>
+        <div class="gico">${icon(s.icon)}</div>
+        <div class="gname">${s.title}</div>
+        <div class="gdesc">${s.sub}</div></div>`);
+      return;
+    }
+    flush();
+    if (s.type === "jewel") {
+      html += `<section class="card reveal">
+        <div class="card-head"><span class="card-no">${s.no}</span><h2 class="card-title">${s.title}</h2></div>
+        <p class="card-sub">${s.sub}</p>
+        <ul class="jlist">${s.items.map(it => `<li class="jrow">
+            <div class="jico">${icon(it.icon)}</div>
+            <div class="jtxt"><div class="jname">${it.name}</div><div class="jdesc">${it.desc}</div></div>
+          </li>`).join("")}</ul></section>`;
+    } else if (s.type === "money") {
+      html += `<section class="card money reveal">
+        <div class="money-label">${s.no} · ${s.title}</div>
+        <div class="money-amt"><small>¥</small><span data-count="${s.amount}">0</span></div>
+        <div class="money-cap">${s.cap}</div>
+        <div class="money-line"></div>
+        <div class="money-desc">${s.sub}</div></section>`;
+    }
+  });
+  flush();
+  root.innerHTML = html;
+
+  const names = `${CONFIG.groom} <em>❖</em> ${CONFIG.bride}`;
+  $("heroNames").innerHTML = names;
+  $("footNames").innerHTML = names;
+  $("heroDate").textContent = CONFIG.date;
+  $("footDate").textContent = CONFIG.date;
+  $("plaque").textContent = CONFIG.plaque;
+  $("gate").style.setProperty("--hold", CONFIG.holdMs + "ms");
+})();
+
+
+/* ---------- 滚动出现 + 数字滚动 ---------- */
+let revealIO = null, revealTimer = null;
+function revealOne(el) {
+  el.classList.add("in");
+  const num = el.querySelector("[data-count]");
+  if (num && num.dataset.done !== "1") {
+    num.dataset.done = "1";
+    countUp(num, +num.dataset.count, 1500);
+  }
+}
+function sweepReveal() {
+  const vh = innerHeight;
+  document.querySelectorAll(".reveal:not(.in)").forEach(el => {
+    const r = el.getBoundingClientRect();
+    if (r.top < vh * 0.95 && r.bottom > 0) revealOne(el);
+  });
+}
+function initReveal() {
+  ["scroll", "touchmove", "wheel"].forEach(ev =>
+    addEventListener(ev, sweepReveal, { passive: true }));
+  addEventListener("resize", sweepReveal);
+  sweepReveal();
+  if ("IntersectionObserver" in window) {
+    if (!revealIO) {
+      revealIO = new IntersectionObserver(es => {
+        es.forEach(e => { if (e.isIntersecting) { revealOne(e.target); revealIO.unobserve(e.target); } });
+      }, { threshold: 0.12, rootMargin: "0px 0% -6% 0px" });
+    }
+    document.querySelectorAll(".reveal:not(.in)").forEach(el => revealIO.observe(el));
+  }
+  if (!revealTimer) {
+    revealTimer = setInterval(() => {          // 轮询兜底
+      sweepReveal();
+      if (!document.querySelector(".reveal:not(.in)")) { clearInterval(revealTimer); revealTimer = null; }
+    }, 380);
+  }
+}
+function countUp(el, target, dur) {
+  const t0 = performance.now();
+  const ease = t => 1 - Math.pow(1 - t, 3);
+  (function step() {
+    const k = Math.min(1, Math.max(0, (performance.now() - t0) / dur));
+    el.textContent = Math.round(target * ease(k)).toLocaleString("en-US");
+    if (k < 1) requestAnimationFrame(step);
+  })();
+}
+
+
+/* ---------- 金色飘落粒子（花瓣 + 星光） ---------- */
+(function particles() {
+  const cv = $("petals");
+  const ctx = cv.getContext("2d");
+  let W = 0, H = 0, DPR = 1, list = [];
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = cv.width = Math.floor(innerWidth * DPR);
+    H = cv.height = Math.floor(innerHeight * DPR);
+    cv.style.width = innerWidth + "px";
+    cv.style.height = innerHeight + "px";
+  }
+  function spawn(y) {
+    const petal = Math.random() < 0.32;
+    return {
+      x: Math.random() * W,
+      y: y === undefined ? -30 * DPR : y,
+      r: (petal ? 5 + Math.random() * 6 : 1.1 + Math.random() * 2.4) * DPR,
+      vy: (0.22 + Math.random() * 0.75) * DPR,
+      vx: (Math.random() - 0.5) * 0.42 * DPR,
+      sw: Math.random() * Math.PI * 2,
+      sws: 0.006 + Math.random() * 0.016,
+      rot: Math.random() * Math.PI,
+      vr: (Math.random() - 0.5) * 0.03,
+      a: petal ? 0.35 + Math.random() * 0.4 : 0.3 + Math.random() * 0.55,
+      petal
+    };
+  }
+  function make() {
+    const n = innerWidth < 520 ? 42 : 68;
+    list = [];
+    for (let i = 0; i < n; i++) list.push(spawn(Math.random() * H));
+  }
+  let last = performance.now();
+  function tick(now) {
+    const dt = Math.min((now - last) / 16.67, 3);
+    last = now;
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < list.length; i++) {
+      const p = list[i];
+      p.sw += p.sws * dt;
+      p.x += (p.vx + Math.sin(p.sw) * 0.5 * DPR) * dt;
+      p.y += p.vy * dt;
+      p.rot += p.vr * dt;
+      if (p.y > H + 40 * DPR) list[i] = spawn();
+      if (p.x < -40 * DPR) p.x = W + 20 * DPR;
+      if (p.x > W + 40 * DPR) p.x = -20 * DPR;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = p.a;
+      if (p.petal) {
+        const g = ctx.createLinearGradient(-p.r, -p.r, p.r, p.r);
+        g.addColorStop(0, "#ffe9a8");
+        g.addColorStop(.5, "#e8b64c");
+        g.addColorStop(1, "#b3242e");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, p.r, p.r * 0.52, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillStyle = "#ffe6ab";
+        ctx.shadowColor = "rgba(255,205,110,.95)";
+        ctx.shadowBlur = 9 * DPR;
+        ctx.beginPath();
+        ctx.moveTo(0, -p.r * 2.2);
+        ctx.lineTo(p.r * 0.5, 0);
+        ctx.lineTo(0, p.r * 2.2);
+        ctx.lineTo(-p.r * 0.5, 0);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+    requestAnimationFrame(tick);
+  }
+  resize(); make(); requestAnimationFrame(tick);
+  addEventListener("resize", () => { resize(); make(); });
+  document.addEventListener("visibilitychange", () => { last = performance.now(); });
+})();
+
+
+/* ---------- 开门的一声轻钟（用 WebAudio 合成，不需要音频文件） ---------- */
+function chime() {
+  if (!CONFIG.sound) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    const ac = new AC();
+    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+      const t = ac.currentTime + i * 0.11;
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = "sine"; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.10, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
+      o.connect(g); g.connect(ac.destination);
+      o.start(t); o.stop(t + 1.6);
+    });
+    setTimeout(() => { try { ac.close(); } catch (e) {} }, 3000);
+  } catch (e) {}
+}
+
+
+/* ---------- 长按开门（长按 = 蓄力开门；轻触 = 直接开门，两条路都通） ---------- */
+(function gate() {
+  const gateEl = $("gate");
+  const hall   = $("hall");
+  const flash  = $("flash");
+  const skip   = $("skip");
+  const replay = $("replay");
+
+  let opened = false, pressing = false, timer = null;
+
+  function isUI(t) { return !!(t && t.closest && t.closest(".skip,.replay,button,a")); }
+
+  function onStart(e) {
+    if (opened || pressing) return;
+    if (isUI(e.target)) return;
+    if (e.type === "touchstart" && e.touches && e.touches.length > 1) return;
+    pressing = true;
+    gateEl.classList.add("holding");
+    clearTimeout(timer);
+    timer = setTimeout(open, CONFIG.holdMs);   // 按满时长 → 开门
+  }
+
+  function onStop(e) {
+    if (opened || !pressing) return;
+    if (isUI(e.target)) return;
+    pressing = false;
+    clearTimeout(timer);
+    gateEl.classList.remove("holding");
+    open();                                     // 没按满就松手 → 也开门，绝不卡住
+  }
+
+  function open() {
+    if (opened) return;
+    opened = true; pressing = false;
+    clearTimeout(timer);
+    gateEl.classList.remove("holding");
+    gateEl.classList.add("open");
+    hall.classList.add("visible");              // 门后礼堂先亮起
+    flash.classList.add("on");
+    chime();
+
+    setTimeout(() => gateEl.classList.add("done"), 2100);
+    setTimeout(() => {
+      flash.classList.remove("on");
+      document.body.classList.remove("locked");
+      initReveal();                              // 礼单滚动出现 + 金额滚动
+    }, 3000);
+  }
+
+  // pointer / touch / mouse 三套事件全兼容
+  ["pointerdown", "touchstart", "mousedown"].forEach(t =>
+    document.addEventListener(t, onStart, { capture: true, passive: true }));
+  ["pointerup", "touchend", "mouseup", "pointercancel", "touchcancel"].forEach(t =>
+    document.addEventListener(t, onStop, { capture: true, passive: true }));
+
+  // 兜底：click 一定存在 —— 点一下就开
+  document.addEventListener("click", (e) => {
+    if (opened || isUI(e.target)) return;
+    open();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") open();
+  });
+
+  skip.addEventListener("click", (e) => { e.stopPropagation(); open(); });
+  setTimeout(() => skip.classList.add("show"), 2600);   // 2.6s 后给出显式直达入口
+
+  // 防止长按被系统菜单 / 选中打断
+  document.addEventListener("contextmenu", (e) => { if (!opened) e.preventDefault(); });
+  document.addEventListener("selectstart", (e) => { if (!opened) e.preventDefault(); });
+  document.addEventListener("dragstart",   (e) => { if (!opened) e.preventDefault(); });
+  document.addEventListener("touchstart",  (e) => {
+    if (!opened && e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+
+  // 直达链接：xxx/index.html#list  或  xxx/index.html?open=1  → 跳过开门直接看礼单
+  if (location.hash === "#list" || /[?&]open=1/.test(location.search)) {
+    CONFIG.sound = false;                 // 直达时不播声音（没有用户交互，浏览器也会拦）
+    setTimeout(open, 120);
+  }
+
+  // 重新开启大门
+  replay.addEventListener("click", () => {
+    opened = false;
+    gateEl.classList.remove("open", "done", "holding");
+    hall.classList.remove("visible");
+    document.body.classList.add("locked");
+    hall.scrollTop = 0;
+    scrollTo({ top: 0, behavior: "auto" });
+    skip.classList.remove("show");
+    // 重置礼单的浮现与金额
+    document.querySelectorAll(".reveal").forEach(el => {
+      el.classList.remove("in");
+      const n = el.querySelector("[data-count]");
+      if (n) { n.dataset.done = ""; n.textContent = "0"; }
+    });
+    setTimeout(() => skip.classList.add("show"), 2600);
+  });
+})();
+
+
+/* ---------- 生成分享二维码（当前网址） ---------- */
+(function renderQR() {
+  const box = $("qrBox"), tip = $("shareTip");
+  const url = location.href.split("#")[0];
+  if (location.protocol !== "http:" && location.protocol !== "https:") {
+    box.innerHTML = '<div class="qr-empty">部署到线上后<br>这里会自动生成二维码</div>';
+    tip.textContent = "把本页上传到 GitHub Pages 后即可自动生成";
+    return;
+  }
+  if (typeof qrcode !== "function") {
+    tip.textContent = "二维码组件未加载，请确认 qrcode.min.js 与页面在同一目录";
+    return;
+  }
+  try {
+    const qr = qrcode(0, "M"); qr.addData(url); qr.make();
+    const n = qr.getModuleCount(), q = 4, scale = 8;
+    const cv = document.createElement("canvas");
+    cv.width = cv.height = (n + q * 2) * scale;
+    const g = cv.getContext("2d");
+    g.fillStyle = "#fffaf0"; g.fillRect(0, 0, cv.width, cv.height);
+    g.fillStyle = "#5e0617";
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++)
+      if (qr.isDark(r, c)) g.fillRect((c + q) * scale, (r + q) * scale, scale, scale);
+    const img = new Image();
+    img.alt = "分享二维码"; img.src = cv.toDataURL("image/png");
+    box.appendChild(img);
+    tip.innerHTML = "长按二维码<b>保存</b> · 或直接转发本页给亲友";
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>
