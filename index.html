@@ -391,7 +391,7 @@ body.locked{overflow:hidden;height:100vh;position:fixed;width:100%}
       <div class="hero-xi" aria-hidden="true">囍</div>
       <div class="hero-kicker">订婚之喜</div>
       <div class="hero-seal">囍</div>
-      <h1 class="hero-title">聘礼八大件</h1>
+      <h1 class="hero-title">聘礼</h1>
       <div class="hero-sub">礼　单</div>
       <div class="hero-names" id="heroNames"></div>
       <div class="hero-date" id="heroDate"></div>
@@ -579,6 +579,16 @@ body.locked{overflow:hidden;height:100vh;position:fixed;width:100%}
     <path d="M34 11.5 C34.3 14.1 35.4 15.2 38 15.5 C35.4 15.8 34.3 16.9 34 19.5 C33.7 16.9 32.6 15.8 30 15.5 C32.6 15.2 33.7 14.1 34 11.5 Z" fill="url(#gSilver)" stroke="none"/>
   </symbol>
 
+  <!-- 传世金条 -->
+  <symbol id="ic-bar" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11.6 30.4 L15.4 18.6 H32.6 L36.4 30.4 Z"/>
+    <path d="M15.4 18.6 L18.6 9.6 H29.4 L32.6 18.6"/>
+    <path d="M11.6 30.4 L14.6 39.2 H33.4 L36.4 30.4"/>
+    <path d="M18.4 34.8 H29.6" opacity=".7"/>
+    <path d="M19.6 22.6 H28.4" opacity=".55"/>
+    <path d="M36.5 8 C36.8 10.2 37.7 11.1 39.9 11.4 C37.7 11.7 36.8 12.6 36.5 14.8 C36.2 12.6 35.3 11.7 33.1 11.4 C35.3 11.1 36.2 10.2 36.5 8 Z" fill="url(#gGold)" stroke="none"/>
+  </symbol>
+
   <!-- iPhone -->
   <symbol id="ic-phone" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
     <rect x="14" y="7.5" width="20" height="33" rx="5.4"/>
@@ -654,7 +664,7 @@ const CONFIG_SECTIONS = [
   },
   { no:"叁", type:"money", title:"日子钱", sub:"择吉纳采 · 定此良辰", amount:58000,  cap:"伍万捌仟元整" },
   { no:"肆", type:"money", title:"彩礼",   sub:"",                      amount:288000, cap:"贰拾捌万捌仟元整" },
-  { no:"伍", type:"simple", icon:"phone", title:"iPhone 18 Pro Max", sub:"一机相牵 · 天涯如面" },
+  { no:"伍", type:"simple", icon:"bar", title:"传世金条", sub:"金玉满堂 · 传家之诺" },
   { no:"陆", type:"simple", icon:"tea",   title:"特级金骏眉",         sub:"一盏醇香 · 敬奉双亲" },
   { no:"柒", type:"simple", icon:"quilt", title:"铂金蚕丝被",         sub:"一枕温柔 · 共衾同眠" },
   { no:"捌", type:"simple", icon:"chest", title:"大红箱",             sub:"满箱喜气 · 抬进家门" }
@@ -664,7 +674,7 @@ const CONFIG_SECTIONS = [
 const $ = id => document.getElementById(id);
 const ICONS = {bangle:"ic-bangle",necklace:"ic-necklace",stud:"ic-stud",chain:"ic-chain",ring:"ic-ring",
   diaring:"ic-diaring",diaring2:"ic-diaring2",pairring:"ic-pairring",dianek:"ic-dianek",ptstud:"ic-ptstud",
-  phone:"ic-phone",tea:"ic-tea",quilt:"ic-quilt",chest:"ic-chest"};
+  phone:"ic-phone",bar:"ic-bar",tea:"ic-tea",quilt:"ic-quilt",chest:"ic-chest"};
 const icon = k => `<svg viewBox="0 0 48 48" aria-hidden="true"><use href="#${ICONS[k]||"ic-ring"}"></use></svg>`;
 
 
