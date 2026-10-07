@@ -377,6 +377,22 @@ body.locked{overflow:hidden;height:100vh;position:fixed;width:100%}
   #hall::after{animation:none}
   *{animation-duration:.001s !important;animation-iteration-count:1 !important}
 }
+
+/* ============ 背景音乐按钮 ============ */
+#musicBtn{
+  position:fixed;z-index:100;bottom:20px;right:20px;
+  width:48px;height:48px;border-radius:50%;
+  background:rgba(140,13,22,.85);border:2px solid #e8c168;
+  color:#ffefb8;font-size:22px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 12px rgba(0,0,0,.35);
+  transition:transform .3s,background .3s;
+  opacity:0;visibility:hidden
+}
+#musicBtn.show{opacity:1;visibility:visible}
+#musicBtn:hover{transform:scale(1.1);background:rgba(140,13,22,1)}
+#musicBtn.playing{animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 3px 12px rgba(0,0,0,.35)}50%{box-shadow:0 3px 20px rgba(232,193,104,.6)}}
 </style>
 </head>
 <body class="locked">
@@ -646,7 +662,8 @@ const CONFIG = {
   plaque: "我们订婚啦~",            // 门上匾额文字
   date:   "二〇二七 · 囍",          // 日期（头部与页脚共用）
   holdMs: 900,                      // 长按多少毫秒 → 开门
-  sound:  true                      // 开门时是否播放一声轻柔的钟声
+  sound:  true,                     // 开门时是否播放一声轻柔的钟声
+  bgMusic: "Forever.mp3"           // 背景音乐文件名（设为 null 则不播放）
 };
 
 /* 礼单内容：
@@ -935,6 +952,7 @@ function chime() {
       flash.classList.remove("on");
       document.body.classList.remove("locked");
       initReveal();                              // 礼单滚动出现 + 金额滚动
+      if (window.musicControl) window.musicControl.onHallOpen(); // 显示音乐按钮并尝试播放
     }, 3000);
   }
 
@@ -1018,6 +1036,91 @@ function chime() {
     box.appendChild(img);
     tip.innerHTML = "长按二维码<b>保存</b> · 或直接转发本页给亲友";
   } catch (e) {}
+})();
+</script>
+
+
+<!-- 背景音乐按钮 -->
+<button id="musicBtn" type="button" aria-label="背景音乐">
+  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+  </svg>
+</button>
+
+<script>
+/* ---------- 背景音乐控制 ---------- */
+(function musicControl() {
+  const btn = $("musicBtn");
+  const musicFile = CONFIG.bgMusic;
+  let audio = null, isPlaying = false, userInteracted = false;
+
+  if (!musicFile) return; // 没有配置背景音乐则不显示按钮
+
+  // 创建音频对象
+  function createAudio() {
+    if (!audio) {
+      audio = new Audio(musicFile);
+      audio.loop = true;
+      audio.volume = 0.6;
+    }
+    return audio;
+  }
+
+  // 尝试播放音乐
+  function play() {
+    if (isPlaying) return;
+    const a = createAudio();
+    a.play().then(() => {
+      isPlaying = true;
+      btn.classList.add("playing");
+      btn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>';
+    }).catch(() => {});
+  }
+
+  // 暂停音乐
+  function pause() {
+    if (!isPlaying || !audio) return;
+    audio.pause();
+    isPlaying = false;
+    btn.classList.remove("playing");
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>';
+  }
+
+  // 切换播放/暂停
+  function toggle() {
+    if (isPlaying) pause();
+    else play();
+  }
+
+  // 按钮点击事件
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    userInteracted = true;
+    toggle();
+  });
+
+  // 监听用户首次交互后显示按钮
+  document.addEventListener("click", function onFirstClick() {
+    userInteracted = true;
+    document.removeEventListener("click", onFirstClick);
+  }, { once: true });
+
+  // 礼堂打开后显示音乐按钮并尝试自动播放
+  function onHallOpen() {
+    btn.classList.add("show");
+    // 尝试自动播放（需要用户已经有过交互）
+    if (userInteracted) {
+      play();
+    }
+  }
+
+  // 挂载到全局，供开门时调用
+  window.musicControl = {
+    onHallOpen,
+    play,
+    pause,
+    toggle
+  };
 })();
 </script>
 </body>
