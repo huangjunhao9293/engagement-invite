@@ -928,6 +928,8 @@ function chime() {
   function isUI(t) { return !!(t && t.closest && t.closest(".skip,.replay,button,a")); }
 
   function onStart(e) {
+    // iOS 解锁必须发生在手势调用栈内 —— 长按第一下就同步尝试
+    try { window.musicControl && window.musicControl.unlock(); } catch (x) {}
     if (opened || pressing) return;
     if (isUI(e.target)) return;
     if (e.type === "touchstart" && e.touches && e.touches.length > 1) return;
@@ -975,6 +977,7 @@ function chime() {
   // 兜底：click 一定存在 —— 点一下就开
   document.addEventListener("click", (e) => {
     if (opened || isUI(e.target)) return;
+    try { window.musicControl && window.musicControl.unlock(); } catch (x) {}
     open();
   });
   document.addEventListener("keydown", (e) => {
@@ -1063,9 +1066,28 @@ function chime() {
 (function musicControl() {
   const btn = $("musicBtn");
   const musicFile = CONFIG.bgMusic;
-  let audio = null, isPlaying = false, userInteracted = false;
+  let audio = null, isPlaying = false, unlocked = false;
 
   if (!musicFile) return; // 没有配置背景音乐则不显示按钮
+
+  // iOS 音频解锁：必须在真实手势事件（touchstart/pointerdown）的调用栈里同步执行一次 play()，
+  // 该 audio 元素才会被 iOS 标记为"已解锁"，之后 setTimeout 里再调 play() 也不会被拦。
+  // 做法：手势内先静音启动 → 立刻暂停归零，等开门后再正式播放。
+  function unlock() {
+    if (unlocked || !audio) return;
+    unlocked = true;
+    const a = audio;
+    a.muted = true;
+    a.play().then(() => {
+      a.pause();
+      try { a.currentTime = 0; } catch (e) {}
+      a.muted = false;
+    }).catch(() => {
+      // 解锁失败（极少见）：退回去，靠 play() 里的"首次触摸重试"兜底
+      unlocked = false;
+      a.muted = false;
+    });
+  }
 
   // 创建音频对象
   function createAudio() {
@@ -1110,30 +1132,27 @@ function chime() {
   // 按钮点击事件
   btn.addEventListener("click", (e) => {
     e.stopPropagation();
-    userInteracted = true;
     toggle();
   });
 
-  // 任何触摸/点击都算用户交互（iOS 长按开门不一定触发 click，pointerdown 更稳）
-  ["pointerdown", "touchstart", "click"].forEach(ev =>
-    document.addEventListener(ev, function onFirst() {
-      userInteracted = true;
-      document.removeEventListener(ev, onFirst);
-    }, { once: true, passive: true }));
-
-  // 礼堂开门时：显示按钮并立刻尝试播放（趁手势激活还有效，iOS 也能自动响）
+  // 礼堂开门时：显示按钮并立刻尝试播放
+  // （元素若已在长按手势里解锁，这里的 play() 在 iOS 上也能直接成功）
   function onHallOpen() {
     btn.classList.add("show");
-    if (userInteracted) play();
+    play();
   }
 
   // 挂载到全局，供开门时调用
   window.musicControl = {
     onHallOpen,
+    unlock,
     play,
     pause,
     toggle
   };
+
+  // 提前创建好 audio，长按开门时才有机会在手势内解锁它
+  createAudio();
 })();
 </script>
 </body>
