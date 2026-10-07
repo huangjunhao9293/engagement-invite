@@ -613,6 +613,18 @@ body.locked{overflow:hidden;height:100vh;position:fixed;width:100%}
     <path d="M16 43.6 C18.6 42.2 21.4 42.2 24 43.6 C26.6 45 29.4 45 32 43.6" opacity=".8"/>
   </symbol>
 
+  <!-- 羊绒真丝披肩 -->
+  <symbol id="ic-shawl" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M15 17 C17 13.2 31 13.2 33 17"/>
+    <path d="M15 17 C12.8 24.5 13.2 33 15.6 39.2 C17.6 42.4 22.2 42 23.2 38.8 C20.8 32 20.5 24.5 21 18.4"/>
+    <path d="M33 17 C35.2 24.5 34.8 33 32.4 39.2 C30.4 42.4 25.8 42 24.8 38.8 C27.2 32 27.5 24.5 27 18.4"/>
+    <path d="M17 40.2 l-0.4 2.4" opacity=".85"/>
+    <path d="M19.8 39.6 l0 2.4" opacity=".85"/>
+    <path d="M31 40.2 l0.4 2.4" opacity=".85"/>
+    <path d="M28.2 39.6 l0 2.4" opacity=".85"/>
+    <path d="M24 13.6 v3" opacity=".7"/>
+  </symbol>
+
   <!-- 大红箱 -->
   <symbol id="ic-chest" viewBox="0 0 48 48" fill="none" stroke="url(#gGold)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
     <path d="M9.5 20.5 V17.4 A5.4 5.4 0 0 1 14.9 12 H33.1 A5.4 5.4 0 0 1 38.5 17.4 V20.5"/>
@@ -666,7 +678,7 @@ const CONFIG_SECTIONS = [
   { no:"肆", type:"money", title:"彩礼",   sub:"",                      amount:288000, cap:"贰拾捌万捌仟元整" },
   { no:"伍", type:"simple", icon:"bar", title:"传世金条", sub:"金玉满堂 · 传家之诺" },
   { no:"陆", type:"simple", icon:"tea",   title:"特级金骏眉",         sub:"一盏醇香 · 敬奉双亲" },
-  { no:"柒", type:"simple", icon:"quilt", title:"铂金蚕丝被",         sub:"一枕温柔 · 共衾同眠" },
+  { no:"柒", type:"simple", icon:"shawl", title:"羊绒真丝披肩", sub:"十二花豹 · 一肩风雅 · 暖你朝夕" },
   { no:"捌", type:"simple", icon:"chest", title:"大红箱",             sub:"满箱喜气 · 抬进家门" }
 ];
 /* ===================== 可修改区域结束 ===================== */
@@ -674,7 +686,7 @@ const CONFIG_SECTIONS = [
 const $ = id => document.getElementById(id);
 const ICONS = {bangle:"ic-bangle",necklace:"ic-necklace",stud:"ic-stud",chain:"ic-chain",ring:"ic-ring",
   diaring:"ic-diaring",diaring2:"ic-diaring2",pairring:"ic-pairring",dianek:"ic-dianek",ptstud:"ic-ptstud",
-  phone:"ic-phone",bar:"ic-bar",tea:"ic-tea",quilt:"ic-quilt",chest:"ic-chest"};
+  phone:"ic-phone",bar:"ic-bar",tea:"ic-tea",quilt:"ic-quilt",shawl:"ic-shawl",chest:"ic-chest"};
 const icon = k => `<svg viewBox="0 0 48 48" aria-hidden="true"><use href="#${ICONS[k]||"ic-ring"}"></use></svg>`;
 
 
