@@ -18,8 +18,10 @@ https://huangjunhao9293.github.io/engagement-invite/
 |---|---|
 | `index.html` | 页面全部内容（HTML + CSS + JS 单文件） |
 | `qrcode.min.js` | 二维码生成库（本地引用，部署时与 index.html 放同一目录） |
+| `Forever.m4a` | 背景音乐（开门钟声后渐起、循环；右下角按钮可暂停 / 继续） |
 
-> 两个文件都要上传；缺了 `qrcode.min.js` 页面也能正常用，只是底部二维码位置会显示占位提示。
+> `index.html` 和 `qrcode.min.js` 都要上传；缺了 `qrcode.min.js` 页面也能正常用，只是底部二维码位置会显示占位提示。
+> 缺了 `Forever.m4a` 页面照常运行，只是没有背景音乐。
 
 ## 修改内容
 
